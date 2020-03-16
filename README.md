@@ -5,7 +5,7 @@ tutorial files to study rstudio
 
 目的：RStudioを使用したデータ分析初歩のサンプルファイル群を提供する。
 
-## Contents
+## Files
 
 [tutorial1.Rmd](./tutorial1.Rmd) : 基本のRNotebookファイル。
 
