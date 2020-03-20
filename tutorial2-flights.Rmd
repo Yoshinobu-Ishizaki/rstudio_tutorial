@@ -1,0 +1,45 @@
+---
+title: "R Notebook tutorial 2"
+author: Yoshinobu Ishizaki
+date: 2020/03/20
+output: 
+  html_notebook:
+    toc: true
+    toc_float: true
+    number_sections: true
+---
+
+# Abstract
+
+典型的なrstudioによるデータ分析のサンプル。
+flightsデータを使用する。
+
+# Analysis
+
+## Read data
+
+```{r}
+# 必要なら以下のコードを実行してパッケージをインストールする。
+# install.packages("nycflights13")
+```
+
+```{r}
+library(nycflights13)
+library(tidyverse)
+```
+
+2013年NYC空港のフライトデータ。
+
+```{r}
+str(flights)
+```
+
+```{r}
+summary(flights)
+```
+
+```{r}
+g1 = ggplot(flights, aes(x=air_time))
+g1 + geom_histogram() + ggtitle("フライト時間分布")
+```
+
