@@ -23,20 +23,49 @@ flightsデータを使用する。
 # install.packages("nycflights13")
 ```
 
+`tidyverse`を使うと便利なパッケージを一通り読み込める。
+
 ```{r}
-library(nycflights13)
 library(tidyverse)
 ```
 
 2013年NYC空港のフライトデータ。
 
 ```{r}
+library(nycflights13)
+```
+
+## Exploring data
+
+`str, glimpse`でデータの概略を確認出来る。
+
+```{r}
 str(flights)
 ```
+
+
+```{r}
+glimpse(flights)
+```
+
+`summary` で要約統計量などを確認。 
 
 ```{r}
 summary(flights)
 ```
+
+`filter`にて、特徴のあるデータを抽出。
+60分以上到着が遅れたフライト。
+
+```{r}
+flights %>% filter( arr_delay > 60) %>% top_n(10) %>% arrange(desc(arr_delay)) %>% glimpse()
+```
+
+全て12/31に集中しているので、この日何か異常事態が起こってその影響で終日遅れが出たのだろうと推測できる。
+
+## Visualization
+
+ヒストグラムの表示。
 
 ```{r}
 g1 = ggplot(flights, aes(x=air_time))
