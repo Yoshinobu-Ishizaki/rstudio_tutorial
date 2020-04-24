@@ -1,0 +1,38 @@
+---
+title: "RStudio vs Jupyter+R"
+author: Yoshinobu Ishizaki
+date: 2020/04/24
+output: 
+  html_notebook: 
+    fig_width: 8
+    number_sections: yes
+    toc: yes
+    toc_float: yes
+---
+
+# TL;DR;
+
+Rしか使わないのだったら、RStudioの方がお勧め。
+
+# RStudio Pros
+
+- インストールが簡単(R,RStudioの2つのインストーラを走らせるだけ)。
+- GUIが充実している。
+- RNotebookやRMarkdownで生成されるHTMLの完成度が高い。
+- GitやShinyといった拡張機能との親和性が高い。
+- 参照するファイル等のパスなどの自動補完が優秀。
+- RStudio-Serverのインストールもかなり簡単(AWSに数分でサーバーを立てることが出来る)。
+- RStudio-ServerのGUIインターフェースがローカル用とほぼ同じ。
+- Jupyter notebookよりもR Markdownの方がファイル形式としてシンプル。
+- エラーの際、実行を止めやすい(jupyterだとkernelの再起動がしばしば必要)。
+- Help関係が充実してるので、ドキュメント検索やエラーの際の調査がしやすい。
+
+# RStudio Cons
+
+- PythonやJuliaといった別言語を使いにくい。統一的に扱うならjupyterの方が適している。
+- Windowsでは、日本語を含むパスの場合にR Notebookが実質使えない。レンダリングがうまく行かない。R Markdown -> HTMLならOK。
+- 機械学習関係はpythonの方が充実してる？pythonがメインになるならRStudioは選択すべきでない。
+
+# ScreenShot
+
+![](rstudio-server.png)
