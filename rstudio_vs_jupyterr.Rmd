@@ -5,12 +5,13 @@ date: 2020/04/24
 output: 
   html_notebook: 
     fig_width: 8
+    fig_height: 4.5
     number_sections: yes
     toc: yes
     toc_float: yes
 ---
 
-# TL;DR;
+# In Short
 
 Rしか使わないのだったら、RStudioの方がお勧め。
 
@@ -19,6 +20,7 @@ Rしか使わないのだったら、RStudioの方がお勧め。
 - インストールが簡単(R,RStudioの2つのインストーラを走らせるだけ)。
 - GUIが充実している。
 - RNotebookやRMarkdownで生成されるHTMLの完成度が高い。
+- JupyterでHTML形式を生成すると元の.ipynbファイルの場所とは無関係にローカルにダウンロードされてしまうが、R Markdownなら同じフォルダに生成される。
 - GitやShinyといった拡張機能との親和性が高い。
 - 参照するファイル等のパスなどの自動補完が優秀。
 - RStudio-Serverのインストールもかなり簡単(AWSに数分でサーバーを立てることが出来る)。
