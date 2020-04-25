@@ -1,0 +1,85 @@
+---
+title: "rmarkdown_to_pdf"
+author: "Yoshinobu Ishizaki"
+date: "2020/4/26"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    # number_sections: yes
+    # toc: yes
+  html_document:
+    df_print: paged
+    toc: yes
+geometry: no
+documentclass: bxjsarticle
+classoption: xelatex, ja=standard
+mainfont: Noto Serif CJK JP
+monofont: Noto Sans Mono CJK JP
+---
+
+```{r setup, include=FALSE}
+# knitr::opts_chunk$set(echo = TRUE)
+
+# 出力フォーマットが TeX（PDF含む）の場合のみ対処する
+if (knitr::opts_knit$get("rmarkdown.pandoc.to") %in% c("beamer", "latex")) {
+
+  # conversion failure on '...' in 'mbcsToSbcs' の Warning 発生の workaround
+  options(device = function(file, width = 7, height = 7, ...) {
+    cairo_pdf(tempfile(), width = width, height = height, ...)
+  })
+  
+  ## 1. cairo_pdf を使う方法
+  # * family には OS にインストールされているフォント名を指定する。
+  knitr::opts_chunk$set(dev="cairo_pdf", dev.args=list(family="Noto Sans"))
+}
+```
+
+日本語テスト
+
+```{r}
+plot(cars)
+title("てすと")
+```
+
+
+この文章がknit to pdfにできたら問題なし。
+
+# 準備
+
+```
+install.packages("tinytex")
+tinytex::install_tinytex(extra_packages = "collection-langjapanese")
+```
+
+インストール終了後、
+
+```
+tinytex:::is_tinytex()
+```
+
+がTRUEになればOK。
+
+
+knit to PDFで
+`! LaTeX Error: Option clash for package geometry.`
+
+と言うエラーになった場合は、pandocの--templateの指定ファイルを探して、
+
+`sudo nano /usr/local/lib/R/site-library/rmarkdown/rmd/latex/default-1.17.0.2.tex`
+
+F6でgeometryを探して、
+
+```
+$if(geometry)$
+%\usepackage[$for(geometry)$$geometry$$sep$,$endfor$]{geometry}
+$endif$
+```
+
+とコメントアウトすると良い。
+
+# 参考
+
+- http://nonki1974.hateblo.jp/entry/2018/12/27/011003
+- https://qiita.com/nozma/items/1c6b000b674225fd40d7
+- https://www.trifields.jp/how-to-set-up-for-outputting-a-pdf-of-the-japanese-at-knitr-in-ubuntu-1404-and-r-1615
+
