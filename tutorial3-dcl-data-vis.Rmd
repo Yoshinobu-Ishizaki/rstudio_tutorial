@@ -1,0 +1,211 @@
+---
+title: "tutorial3-dcl-data-vis"
+author: "Yoshinobu Ishizaki"
+date: "2020/4/26"
+output: 
+  html_notebook:
+    toc: true
+    toc_float: true
+    number_sections: true
+    fig_width: 8
+    fig_height: 4.5
+---
+
+# Abstract 
+
+このチュートリアルはhttps://dcl-data-vis.stanford.edu/の内容に基づく。
+
+```{r setup}
+# You can copy this code with the copy button!
+# First, install devtools if you don't already have it:
+# install.packages("devtools")
+# devtools::install_github("dcl-docs/dcldata")
+```
+
+```{r}
+library(tidyverse)
+library(dcldata)
+library(cowplot)
+```
+
+```{r}
+# data(package = "dcldata")
+```
+
+# ggplot basics
+
+元データはパイプを使ってプロットに渡すのが良い。
+データをフィルタリングしてからプロットするときなどにコードの見通しがよい。
+
+```{r}
+mpg %>% 
+  ggplot(mapping = aes(x = displ, y = hwy)) + geom_point()
+```
+
+`facet_wrap`などを使うときは`vars`を使うのが最新式。
+
+```{r}
+mpg %>% 
+  ggplot(mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + facet_wrap(vars(class))
+```
+
+`coor_fixed`を指定すると縦横の比率を1:1に出来る。
+
+```{r}
+r <- rep_len(c(100 , 100 * sin(pi / 10) / cos(pi / 5)), length.out = 11)
+star <- 
+  tibble(
+    x = r * sin(seq(0, 2 * pi, length.out = 11)),
+    y = r * cos(seq(0, 2 * pi, length.out = 11))
+  )
+
+star %>% 
+  ggplot(mapping = aes(x = x, y = y)) +
+  geom_path() +
+  geom_point() + coord_fixed()
+```
+
+# 離散値と連続値の関係
+
+縦の棒グラフが不向きなときは`coord_flip`で横向きに出来る。
+
+```{r}
+p <- mpg %>% 
+  ggplot(mapping = aes(x = manufacturer)) +
+  geom_bar()
+
+stamp_bad(p)
+```
+
+```{r}
+mpg %>% 
+  ggplot(mapping = aes(x = manufacturer)) +
+  geom_bar() + coord_flip()
+```
+
+```{r}
+utah_languages <-
+  languages_states %>% 
+  filter(state == "Utah", language != "Spanish") %>%
+  top_n(n = 20, wt = speakers)
+
+# utah_languages
+```
+
+ユタ州の話者数でソートした棒グラフ。`fct_reorder`の使い方がミソ。
+
+```{r}
+utah_languages %>% 
+  mutate(language = fct_reorder(language, speakers)) %>% 
+  ggplot(mapping = aes(x = language, y = speakers)) +
+  geom_col() +
+  coord_flip()
+```
+
+`geom_bar`を使う場合、`fct_infreq`によって出現頻度で順序を決めることが出来る。
+
+```{r}
+mpg %>% 
+  mutate(drv = fct_infreq(drv) %>% fct_rev()) %>% 
+  ggplot(mapping = aes(x = drv)) +
+  geom_bar() 
+```
+
+棒グラフの代わりに点プロットを使うことが出来る。棒グラフは常に0から始まるので、0ベースで比較するのが不適切な場合は添付ロットのほうが良い。
+
+```{r}
+example_sprint %>% 
+  mutate(name = fct_reorder(name, -time)) %>% 
+  ggplot(mapping = aes(x = name, y = time)) +
+  geom_point() +
+  coord_flip()
+```
+
+色分けプロットで色数があまりに多くなる時は`facet_wrap`の使用が推奨される。
+
+```{r,fig.asp=1.5}
+mpg %>% 
+  ggplot(aes(trans)) +
+  geom_bar() +
+  facet_grid(rows = vars(drv))
+```
+
+# 可視化の目標
+
+```{r}
+library(measurements)
+```
+
+```{r}
+buildings_10 <-
+  buildings %>% mutate(height_m = conv_unit(height,"feet","m")) %>% 
+  top_n(n = 10, wt = height_m)
+```
+
+```{r}
+buildings_10
+```
+
+プロットにはタイトルや軸ラベルをつけると理解しやすくなる。
+
+```{r}
+buildings_10 %>% 
+  mutate(building = fct_reorder(building, height)) %>% 
+  ggplot(mapping = aes(x = building, y = height_m)) +
+  geom_point() +
+  coord_flip() +
+  labs(
+    x = "Building name",
+    y = "Height (meter)",
+    title = "Heights of the world's 10 tallest buildings"
+  )
+```
+
+プロットするということは、データをある意味をもたせるようにコード化することで、そのプロットを見た人がデコードして意味を読み取れることが重要。
+書き手の意図が伝わるようにプロットを作成しないとならない。
+
+2つ以上の分類項目でプロットするときは、Cleveland and McGillによるコード化良否の順位を意識して表示方法を決めるとよい。
+
+```{r}
+buildings_10 %>% 
+  mutate(building = fct_reorder(building, height)) %>% 
+  ggplot(mapping = aes(x = building, y = height_m, size = floors)) +
+  geom_point() +
+  coord_flip()
+```
+
+Tianjin CTF Trade Centerのフロア数が異様に少ないことがすぐ読み取れる。
+
+フロアあたりの高さという変数を導入してプロットすると別の視点を与えられる。
+
+```{r}
+buildings_10 %>% 
+  mutate(building = fct_reorder(building, height_m / floors)) %>% 
+  ggplot(mapping = aes(x = building, y = height_m / floors)) +
+  geom_point() +
+  coord_flip()
+```
+
+Lotte World Towerはこの中で1フロアあたり最も低い。
+
+# 戦略
+
+良い可視化のための4要点
+
+1. 目標を設定する
+
+    検討のためにプロットしてるのか、他社に説明するためか。
+
+1. 量をこなす
+
+    狭い視点に陥らないように、様々な角度から多くのプロットを行って、データに対する理解を深めるのが大事。
+    
+1. プロットを見返す
+
+    他者の視点で見た時にどのような意味をそのプロットから読み取れるのか、という観点で見返すことが大事。
+    
+1. 繰り返す
+
+    最初から良いプロットが得られることはない。何度もプロットしなおして行くことで良いプロットに到達することが出来る。出来上がるまで時間はかかる。
+    
