@@ -13,7 +13,7 @@ output:
 
 # Abstract 
 
-このチュートリアルはhttps://dcl-data-vis.stanford.edu/の内容に基づく。
+このチュートリアルはhttps://dcl-data-vis.stanford.edu/ の内容に基づく。
 
 ```{r setup}
 # You can copy this code with the copy button!
@@ -209,3 +209,376 @@ Lotte World Towerはこの中で1フロアあたり最も低い。
 
     最初から良いプロットが得られることはない。何度もプロットしなおして行くことで良いプロットに到達することが出来る。出来上がるまで時間はかかる。
     
+# 分布
+
+`geom_hline`の中で計算することができる。
+
+```{r}
+mpg %>% 
+  mutate(class = fct_reorder(class, hwy)) %>% 
+  ggplot(aes(class, hwy)) +
+  geom_hline(aes(yintercept = median(hwy, na.rm = TRUE)), color = "red") +
+  geom_boxplot()
+```
+
+X軸のテキスト配置を変更することもできる。
+
+```{r}
+mpg %>% 
+  mutate(manufacturer = fct_reorder(manufacturer, hwy)) %>% 
+  ggplot(aes(manufacturer, hwy)) +
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = -45, hjust = 0))
+```
+
+```{r}
+summary(congress$age)
+```
+
+```{r}
+congress %>% 
+  group_by(chamber) %>% 
+  summarize(median_age = median(age))
+```
+
+分布を見るにはヒストグラムがまずは基本。`binwidth`を適切に設定する必要はある。
+
+```{r}
+congress %>% 
+  ggplot(aes(x = age)) +
+  geom_histogram(binwidth = 5)
+```
+
+ヒストグラムの代わりに頻度曲線を表示する方法もある。
+
+```{r}
+congress %>% 
+  ggplot(aes(age)) +
+  geom_freqpoly(binwidth = 5) +
+  geom_vline(aes(xintercept = median(age)), color = "red")
+```
+
+`stat(density)`を使うことで、分布の密度をプロットできる。
+
+```{r}
+congress %>% 
+  ggplot(aes(age, y = stat(density), color = chamber )) +
+  geom_freqpoly(binwidth = 5)
+```
+
+# 連続-連続 の関係
+
+広い範囲に分布する変数の場合、対数目盛を取る方が見やすいことがある。
+
+```{r}
+asia_2015 <-
+  gm_combined %>% 
+  filter(region == "Asia", year == 2015)
+```
+
+```{r, fig.asp=1}
+asia_2015 %>% 
+  mutate(name = fct_reorder(name, population)) %>% 
+  ggplot(aes(population, name)) +
+  geom_point() +
+  scale_x_log10() 
+```
+
+あまりに大量の点をプロットすると、どの辺の密度が高いのかがわからなくなる。
+
+```{r}
+gm_combined %>% 
+  ggplot(aes(gdp_per_capita, life_expectancy)) +
+  geom_point() +
+  scale_x_log10() -> p
+  stamp_bad(p)
+```
+
+`bin2d`を利用することで分布の密度を表現することができる。
+
+```{r}
+gm_combined %>% 
+  ggplot(aes(gdp_per_capita, life_expectancy)) +
+  geom_bin2d() +
+  scale_x_log10()
+```
+
+`bin2d`よりも`hexplot`の方が解像度が高く見やすい。`hexbin`パッケージのインストールが必要。
+
+```{r}
+# install.packages("hexbin")
+```
+
+
+```{r}
+gm_combined %>% 
+  ggplot(aes(gdp_per_capita, life_expectancy)) +
+  geom_hex() +
+  scale_x_log10() +
+  scale_fill_viridis_c()
+```
+
+データを減らした場合には、丸の重なり具合で判断することも可能になる。
+
+```{r}
+gm_combined_2010_2015 <-
+  gm_combined %>% 
+  filter(year %in% c(2010, 2015))
+
+```
+
+```{r}
+gm_combined_2010_2015 %>% 
+  ggplot(aes(gdp_per_capita, life_expectancy)) +
+  geom_point(shape = 21, size = 3) +
+  scale_x_log10()
+```
+
+`geom_count`を使って重なりが多い点の大きさを変えることもできる。
+
+```{r}
+mpg %>% 
+  ggplot(aes(displ, hwy)) +
+  geom_count()
+```
+
+`geom_smooth`によって近似曲線をプロットすることができる。
+
+```{r}
+gm_combined %>% 
+  ggplot(aes(gdp_per_capita, life_expectancy)) +
+  geom_hex() +
+  geom_smooth() +
+  scale_x_log10() +
+  scale_fill_viridis_c() 
+```
+
+地域ごとのトレンドを見るには点なしでプロットしたほうが見やすい。
+`fct_reorder2`で順序を指定するのもよい。
+
+`theme`によって判例の位置を変更することができる。
+
+```{r}
+gm_combined %>% 
+  mutate(region =  fct_reorder2(region, gdp_per_capita, life_expectancy)) %>% 
+  ggplot(aes(gdp_per_capita, life_expectancy, color = region)) +
+  geom_smooth(method = "loess") +
+  scale_x_log10() + theme(legend.justification = "top")
+```
+
+対応あるデータの比較の際は`pivot_wider`を使って、対応を列にしてプロットすると良い。
+
+```{r}
+gm_combined_paired <-
+  gm_combined_2010_2015 %>%  
+  select(iso_a3, name, region, year, life_expectancy) %>% 
+  pivot_wider(
+    names_from = year,
+    names_prefix = "year_",
+    values_from = life_expectancy
+  )
+```
+
+かなり凝ったコードだが、次のようにすると2010 → 2015で期待寿命が大きく変わった国を取り上げてプロットすることができる。
+
+```{r}
+outliers <-
+  gm_combined_paired %>% 
+  mutate(diff = year_2015 - year_2010) %>% 
+  filter(diff < -0.5 | diff > 5)
+
+gm_combined_paired %>% 
+  ggplot(aes(year_2010, year_2015,color = region)) +
+  geom_point(alpha = 0.5) +
+  geom_abline(slope = 1, intercept = 0, color = "red") +
+  ggrepel::geom_text_repel(aes(label = name), nudge_x = -5, data = outliers) +
+  annotate(
+    geom = "text", 
+    x = c(30, 65), 
+    y = c(85, 50), 
+    label = c("Life expectancy increased", "Life expectancy decreased"), 
+    hjust = 0
+  ) +
+  coord_fixed() 
+```
+次のようにすると、国別に期待寿命の変化を見ることができる。
+`geom_segment`などの使い方がとても参考になる。
+
+```{r, fig.asp=1}
+gm_combined_paired %>% 
+  filter(region == "Asia") %>% 
+  mutate(name = fct_reorder(name, year_2015)) %>% 
+  ggplot(aes(y = name)) +
+  geom_segment(aes(x = year_2010, xend = year_2015, y = name, yend = name)) +
+  geom_point(aes(x = year_2010, color = "2010")) +
+  geom_point(aes(x = year_2015, color = "2015"))
+```
+Asiaでは日本の期待寿命がトップ。内戦の起こったシリアで極端な減少があるのが改めて確認できる。
+
+```{r}
+gm_combined_2015 <-
+  gm_combined %>% 
+  filter(year == 2015)
+```
+
+2015年のGDPと期待寿命との関係。
+様々な並び替えや、点の表示方法の工夫で図を見やすくしている。
+
+```{r}
+gm_combined_2015 %>% 
+  arrange(desc(population)) %>% 
+  ggplot(
+    aes(gdp_per_capita, life_expectancy, size = population, fill = region)
+  ) +
+  geom_point(shape = 21, color = "black") +
+  scale_size(range = c(0.5, 20), breaks = 10^(6:9)) +
+  scale_x_log10() 
+```
+
+アジア圏の2つの巨大な円は中国とインドで間違いないだろう。
+
+# 時系列データ
+
+時系列データを扱うにはlubricateパッケージを使うと便利。
+
+```{r}
+flights_0101_0102 <-
+  nycflights13::flights %>% 
+  filter(month == 1, day <= 2) %>% 
+  group_by(time_hour = lubridate::floor_date(time_hour, "hour")) %>% 
+  summarize(num_flights = n())
+
+# flights_0101_0102
+```
+
+`scale_*_datetime`を使うことでいい感じの区切りを設けることができる。
+
+```{r}
+flights_0101_0102 %>% 
+  ggplot(aes(time_hour, num_flights)) +
+  geom_col() +
+  scale_x_datetime(date_breaks = "6 hours", date_labels = "%a %I %p") +
+  theme(axis.text.x = element_text(angle = -45, hjust = 0))
+```
+
+```{r}
+south_africa <-
+  gm_combined %>% 
+  filter(name == "South Africa")
+
+south_africa %>% 
+  ggplot(aes(year, life_expectancy)) +
+  geom_point() 
+```
+
+判例の代わりにテキストを配置する方法。
+
+```{r}
+southern_africa_countries <-
+  gm_life_expectancy %>% 
+  filter(
+    name %in% c("South Africa", "Swaziland" ,"Lesotho", "Botswana")
+  ) %>% 
+  filter(year >= 1980, year <= 2015)
+
+southern_africa_countries %>% 
+  mutate(name = fct_reorder2(name, year, life_expectancy)) %>% 
+  ggplot(aes(year, life_expectancy, color = name)) +
+  geom_vline(xintercept = 1994, color = "blue") +
+  geom_point() +
+  geom_line() +
+  geom_text(aes(label=name), color="black",hjust=0,size=3, nudge_x = 0.5,
+            data = southern_africa_countries %>% filter(year==2015)) + 
+  guides(color = "none") +
+  xlim(1980,2020)
+```
+
+複数のデータのマージ方法と、項目数のカウントの仕方。
+
+```{r}
+africa_le <-
+  gm_life_expectancy %>% 
+  left_join(gm_countries, by = c("iso_a3", "name")) %>% 
+  filter(
+    region_gm4 == "africa",
+    year >= 1980,
+    year <= 2015
+  ) 
+
+africa_le %>% 
+  pull(name) %>% 
+  n_distinct()
+```
+
+多くのラインプロットから選択したものを際立たせる方法。
+
+```{r}
+africa_le %>% 
+  ggplot(aes(year, life_expectancy, group = name)) +
+  geom_line(alpha = 0.4) +
+  geom_line(data = africa_le %>% filter(name == "Rwanda"), color = "red") +
+  geom_point(data = africa_le %>% filter(name == "Rwanda", year == 1994)) +
+  geom_text(
+    aes(label = paste(year, "Rwandan genocide")),
+    data = africa_le %>% filter(name == "Rwanda", year == 1994), 
+    hjust = 0,
+    nudge_x = 0.5
+  ) 
+```
+
+テキストと色の濃淡を使い、`geom_path`によって時系列順にデータをプロットすることで、2つの変数がどのように変化してきたかを表すことが出来る。
+
+```{r}
+south_africa %>% 
+  arrange(year) %>% 
+  ggplot(aes(gdp_per_capita, life_expectancy)) +
+  geom_path(aes(alpha = year)) +
+  geom_point(aes(alpha = year)) +
+  geom_text(
+    aes(label = year),
+    data = south_africa %>% filter(year %in% c(1950, 1980, 1995, 2005, 2015)), 
+    nudge_x = -250
+  ) +
+  guides(alpha = "none")
+```
+
+```{r}
+flights_week_1 <-
+  nycflights13::flights %>% 
+  filter(lubridate::week(time_hour) == 1) %>% 
+  group_by(time_hour = lubridate::floor_date(time_hour, "hour")) %>% 
+  summarize(num_flights = n())
+```
+
+```{r}
+flights_week_1 %>% 
+  mutate(am_pm = if_else(lubridate::am(time_hour), "AM", "PM")) %>% 
+  ggplot() +
+  geom_segment(
+    aes(
+      x = time_hour,
+      xend = time_hour,
+      y = num_flights,
+      yend = 0,
+      color = am_pm
+    )
+  ) +
+  scale_x_datetime(date_breaks = "1 day", date_labels = "%a") 
+```
+
+`geom_segment`で2点をつなぐ線分をプロットしていくことで見えてくるものがある。
+
+```{r}
+famines %>% 
+  arrange(desc(deaths_estimate)) %>% 
+  ggplot(aes(year_start, deaths_estimate)) +
+  geom_segment(
+    aes(xend = year_end, yend = deaths_estimate, color = region),
+    size = 2,
+    lineend = "round"
+  ) +
+  ggrepel::geom_text_repel(aes(label = location), size = 2.3) +
+  scale_y_log10() +
+  labs(x = "year")
+```
+
