@@ -1,0 +1,143 @@
+---
+title: "tutorial5-stringr"
+author: "Yoshinobu Ishizaki"
+date: "2020/4/28"
+output: 
+  html_notebook:
+    toc: true
+    toc_float: true
+    number_sections: true
+    fig_width: 8
+    fig_height: 4.5
+---
+
+# Abstract
+
+`stringr`パッケージによる文字列操作あれこれ。
+
+https://github.com/rstudio/cheatsheets/blob/master/strings.pdf
+
+```{r setup, warning=FALSE}
+library(stringr)
+```
+
+`fruit`は`stringr`で定義されている練習用の文字列配列。
+
+```{r}
+fruit %>% head(5)
+```
+
+このデータだけでは漢字の場合がわからないので、日本の県名データも使って確認する。
+
+```{r, warning=FALSE}
+prf <- read_delim("prefecture.txt",",",col_names = FALSE)$X1
+```
+
+# 文字検索
+
+Rは基本的に全てがベクトルなので、1つの項目だけでなく文字ベクトルに対しても同じ関数が適用できる。
+
+漢字も正しく扱ってくれる。
+
+```{r}
+str_detect(prf,"崎")
+```
+
+論理値ベクトルを元のベクトルに与えると選択が出来る。
+
+```{r}
+prf[str_detect(prf,"崎")]
+```
+`str_subset`関数の方が簡単ではある。
+
+```{r}
+str_subset(prf,"宮")
+```
+
+マッチした場合のインデックスを得る。
+
+```{r}
+str_which(prf,"東")
+```
+
+ある文字を何回含んでいるか。
+
+```{r}
+str_count(prf,"島")
+```
+
+```{r}
+str_count(fruit,"p")
+```
+
+```{r}
+str_locate(fruit,"p") %>% head()
+```
+
+# サブセット
+
+マイナスを指定すると後ろからX文字を取り出せる。
+
+```{r}
+str_sub(fruit,-3)
+```
+
+漢字もちゃんと1文字ずつ認識する。
+
+```{r}
+str_sub(prf,1,2)
+```
+
+パターンにマッチしたものを返す。
+
+```{r}
+str_subset(prf,"口")
+```
+
+最初にマッチした文字を返す。
+
+```{r}
+str_extract(prf,"[山川]")
+```
+
+```{r}
+str_match(prf,"山|川") %>% head
+```
+
+# 長さ
+
+```{r}
+str_length(prf)
+```
+
+空白埋め。漢字の場合は2文字分とカウントされる。
+
+```{r}
+str_pad(prf,6, side = "left", pad = " ")
+```
+
+短くする関数はちょっと挙動がおかしい。
+
+```{r}
+str_trunc(prf,2, ellipsis = "")
+```
+
+```{r}
+str_trunc(prf,2, ellipsis = ".")
+```
+
+# 応用編
+
+都道府県名で一番多く使われる漢字は。
+
+一文字ずつばらしたリストを作り、
+```{r}
+prfn <- tibble( name = prf %>% str_split("") %>% unlist())
+```
+
+漢字ごとにグループ分けしてカウントする。
+
+```{r}
+prfn %>% group_by(name) %>% count() %>% tibble() %>% top_n(5,n)
+```
+
