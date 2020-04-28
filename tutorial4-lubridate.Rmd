@@ -1,0 +1,70 @@
+---
+title: "tutorial4-lubridate"
+author: "Yoshinobu Ishizaki"
+date: "2020/4/28"
+output: 
+  html_notebook:
+    toc: true
+    toc_float: true
+    number_sections: true
+    fig_width: 8
+    fig_height: 4.5
+---
+
+# Abstract
+
+https://cran.r-project.org/web/packages/lubridate/vignettes/lubridate.html
+
+lubridateパッケージによる日時データの取り扱い。
+
+# 基礎
+
+```{r,warning=FALSE}
+library(lubridate)
+```
+
+とても簡単に日付の表現を統一的に扱うことが出来る。
+
+```{r}
+ymd(Sys.Date())
+```
+
+```{r}
+ymd("2020/4/28")
+```
+
+書いてある順番を解釈する名前を持った関数がある。
+
+```{r}
+dmy("04/06/2011")
+```
+
+タイムゾーン指定も出来る。
+
+```{r}
+d1 <- ymd_hm("20200428 03:00 pm",tz="Asia/Tokyo")
+d1
+```
+
+```{r}
+with_tz(d1,"UTC")
+```
+
+# 時刻差
+
+```{r}
+dminutes(60)
+```
+
+指定の日数語の日付を簡単に計算出来る。
+
+```{r}
+ymd("20200428")+ddays(65)
+```
+
+日付の差を日数で換算する。
+
+```{r}
+ymd("2020/12/28") - ymd(Sys.Date())
+```
+
