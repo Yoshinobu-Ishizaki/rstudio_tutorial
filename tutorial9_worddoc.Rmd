@@ -1,0 +1,53 @@
+---
+title: "R document to word"
+author: "Yoshinobu Ishizaki"
+date: "2020/5/5"
+output:
+  word_document:
+    toc: yes
+  html_document:
+    df_print: paged
+    toc: yes
+---
+
+# Word document
+
+日本語を含むワードのドキュメントも作れるのか？
+
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+```
+
+# 本文
+
+ここに本文
+
+```{r}
+cars %>% ggplot(aes(x=speed, y = dist)) +
+    geom_point() + labs( title = "テスト")
+```
+
+プロットも含めて問題なし。
+
+Wordだと数式や脚注[^fn1]を試したくなる。
+
+[^fn1]: 脚注を書いてみる。
+
+$$
+y = \sin \theta
+$$
+
+数式と脚注両方共に問題なし[^fn2]。
+
+[^fn2]: どこに脚注を書いても、ちゃんとすべての一番下に脚注として記録される。
+
+--- 
+
+横線やリストもちゃんと変換される。
+
+- りんご
+- みかん
+- バナナ
+
+
+
