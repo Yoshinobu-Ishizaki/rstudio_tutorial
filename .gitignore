@@ -1,5 +1,6 @@
 # Generated HTML file
 *.nb.html
+*.html
 
 # README.html
 README.html
