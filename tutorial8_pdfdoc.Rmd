@@ -1,0 +1,111 @@
+---
+title: "R document pdf"
+author: "Yoshinobu Ishizaki"
+date: "`r Sys.Date()`"
+output: 
+  pdf_document: 
+    latex_engine: xelatex
+    toc: true
+    number_sections: true
+documentclass: bxjsarticle
+classoption: xelatex, ja=standard
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# 出力フォーマットが TeX（PDF含む）の場合のみ対処する
+# conversion failure on '...' in 'mbcsToSbcs' の Warning 発生の workaround
+options(device = function(file, width = 7, height = 7, ...) {
+cairo_pdf(tempfile(), width = width, height = height, ...)
+})
+
+## 1. cairo_pdf を使う方法
+# * family には OS にインストールされているフォント名を指定する。
+knitr::opts_chunk$set(dev="cairo_pdf", dev.args=list(family="Japan1"))
+
+```
+
+# Abstract (概要)
+
+RStudioにてPDFドキュメントの作成を行うための方法をまとめた。
+番号付き章立てのPDFを作成でき、非常に有用。
+
+
+# Preparation (準備)
+
+```
+install.packages("tinytex")
+tinytex::install_tinytex()
+tinytex::tlmgr("install collection-langjapanese")
+```
+
+PCの能力にもよるが、インストールには10分程度かかる。
+
+# Document settings (ドキュメント設定)
+
+YAMLに
+
+```
+  pdf_document: 
+    latex_engine: xelatex
+    toc: true
+    number_sections: true
+documentclass: bxjsarticle
+classoption: xelatex, ja=standard
+```
+
+と記入すると良い。
+
+
+図に日本語があるとPDFで文字化けするので、
+
+````
+```"{r setup}"
+# conversion failure on '...' in 'mbcsToSbcs' の Warning 発生の workaround
+options(device = function(file, width = 7, height = 7, ...) {
+cairo_pdf(tempfile(), width = width, height = height, ...)
+})
+
+## 1. cairo_pdf を使う方法
+# * family には OS にインストールされているフォント名を指定する。
+knitr::opts_chunk$set(dev="cairo_pdf", dev.args=list(family="Japan1"))
+```
+````
+
+も必要。
+
+すると、この文書のような体裁でPDFが作成される。
+
+# Sample 
+
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(openxlsx)
+```
+
+## Data (データ)
+
+```{r}
+cars %>% summary
+```
+
+carsのspeedはmph, distはfeetになっているので、km/hとmeterに変換する。
+
+```{r}
+cars2 <- cars %>% tibble %>% mutate(speed2 = speed * 1.60934, dist2 = dist * 0.3048)
+```
+
+```{r}
+cars2 %>% head
+```
+
+
+## Plot
+
+```{r}
+cars2 %>% ggplot(aes(x=speed2, y = dist2)) +
+    geom_point() + labs(title = "速度と停止距離", x= "km/h", y = "m") + stat_smooth(method = "lm", se = FALSE)
+```
+
