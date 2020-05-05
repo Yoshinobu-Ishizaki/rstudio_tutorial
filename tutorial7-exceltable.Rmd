@@ -1,0 +1,35 @@
+---
+title: "Tutorial7 XLConnect"
+author: Yoshinobu Ishizaki
+date: 2020/05/05
+output: 
+  html_notebook:
+    theme: flatly
+    toc: true
+    toc_float: true
+    number_sections: true
+---
+
+# Excel Table
+
+```{r}
+# library(tidyverse)
+library(openxlsx)
+```
+
+Excel側で読み取りたい範囲に名前をつけておくと、read.xlsxで名前指定で読み込める。
+
+名前範囲とテーブルはかぶっていていいが、先に名前を定義して参照先が`A1:C30`のような形式になっていること。
+
+![](name_area.PNG)
+
+すると、名前を指定してデータをRに読み込むことができる。
+
+```{r}
+dfm <- read.xlsx("excel-table.xlsx", namedRegion = "mytable")
+```
+
+```{r}
+dfm
+```
+
