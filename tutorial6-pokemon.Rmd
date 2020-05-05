@@ -1,0 +1,106 @@
+---
+title: "Pokemon data analysis"
+output: 
+    html_notebook: 
+      fig_heigt: 4.5
+      fig_width: 8
+      number_sections: yes
+      theme: flatly
+      toc: yes
+      toc_float: yes
+---
+
+# Abstract
+
+https://www.youtube.com/watch?v=ZA28sOmq7nU
+
+Pokemon data analysis workout.
+
+# Workout
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(openxlsx)
+```
+
+## Read data 
+
+```{r}
+pokemon <- read.xlsx("Pokemon.xlsx")
+```
+
+```{r}
+dim(pokemon)
+```
+
+## t test
+
+Show plot with Type.I and Atk data.
+
+```{r}
+pokemon %>% ggplot(aes(x = Type.I, y = Atk)) + 
+    geom_boxplot() + coord_flip()
+```
+
+Are means of Psychic and Rock different?
+
+```{r}
+psychic <- pokemon %>% filter(Type.I == "Psychic") %>% select(Atk)
+rock <- pokemon %>% filter(Type.I == "Rock") %>% select(Atk)
+
+t.test(psychic, rock, var.equal = FALSE)
+```
+
+Maybe they are different.
+
+## linear regression
+
+```{r}
+pokemon %>% ggplot(aes(x = Atk, y = Def)) + 
+    geom_point(aes(color = Type.I)) + stat_smooth(method = "lm", se = FALSE) + theme(legend.position = "bottom")
+```
+
+Basically Def ~ Atk ?
+
+```{r}
+regModel <- lm(Def ~ Atk, data = pokemon)
+
+summary(regModel)
+```
+
+Plot residuals of regression model. If this regression model is really good, residuals must be distributed like normal distribution.
+
+```{r}
+tibble(x = regModel$residuals) %>% ggplot(aes(x=x)) + geom_histogram(bins = 30)
+```
+
+It is not look like normal distribution.
+
+Taking log10(y) makes it normal?
+
+```{r}
+pokemon %>% ggplot(aes(x = Atk, y = Def)) + 
+    geom_point(aes(color = Type.I)) + stat_smooth(method = "lm", se = FALSE) + 
+    theme(legend.position = "bottom") + scale_y_log10()
+```
+
+```{r}
+regModelLog <- lm(log10(Def) ~ Atk, data = pokemon)
+```
+
+```{r}
+tibble(x = regModelLog$residuals) %>% ggplot(aes(x=x)) + geom_histogram(bins = 30)
+```
+
+Wow! It look like normal distribution, but shariro-wilk test does not return larger p-value.
+
+```{r}
+shapiro.test(regModelLog$residuals)
+```
+
+So, it is not normal anyway.
+
+```{r}
+tibble(x = regModelLog$residuals) %>% ggplot(aes(sample = x)) + geom_qq() + geom_qq_line()
+```
+
