@@ -48,3 +48,6 @@ vignettes/*.pdf
 # PDF output and logs
 *.log
 *.pdf
+
+*_files/
+*.docx

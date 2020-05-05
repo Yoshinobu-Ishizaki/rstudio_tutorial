@@ -1,0 +1,108 @@
+---
+title: "sample: Statistical Analysis and Data Display"
+author: Yoshinobu Ishizaki
+date: "`r Sys.Date()`"
+output: 
+  html_notebook:
+    toc: true
+    toc_float: true
+---
+
+# Abstract
+
+このノートブックはSpringer Verlagから一時的に無料公開されいていた、
+
+[Statistical Analysis and Data Display](https://link.springer.com/book/10.1007/978-1-4939-2122-5)
+
+の内容から一部抜粋してtidyverseで書き換えながら実行したもの。
+
+実行するには
+
+```
+install.packages("HH")
+```
+
+が必要。
+
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(HH)
+```
+
+# Section 2
+
+## Section 2.7
+
+データのワイドとロングについてはpivot_wider, pivot_longerを使う。
+
+```{r}
+wide <- tibble(Names = LETTERS[1:5], x = 1:5, y = 6:10)
+wide
+```
+
+```{r}
+long <- wide %>% pivot_longer(-Names, names_to = "variable", values_to = "value") %>% 
+    arrange(variable)
+long
+```
+
+```{r}
+wideagain <- long %>% pivot_wider(names_from = "variable", values_from = "value")
+wideagain
+```
+
+## Section 2.A
+
+この部分はNAの扱いについての説明だが、特定の座標に文字を色付きで表示するサンプルとして取り上げる。
+
+```{r}
+abcd <- data.frame(x=c(1, 2, NA, 4, 5, 6, 7, 8),
+    y=c(6, 5, 8, NA, 10, 9, 12, 11),
+    ch=c(NA, "N", "O", "P", "Q", "R", "S", "T"),
+    stringsAsFactors=FALSE)
+abcd
+```
+
+`fct_inorder`を使うと、提示した順番で順序を付けてくれるので使いやすい。
+
+```{r}
+col <- fct_inorder(rep(c("red","blue"),4))
+
+abcd %>% mutate(col = col) %>% ggplot(aes(x = x, y = y, color = col)) +
+    geom_text(aes(label=ch ))
+```
+
+# Section 3
+
+## Section 3.3.4.1 Histogram
+
+ヒストグラムを表示する前にデータを区分に分ける方法はそのままコピーしつつ、tibble形式でデータフレームを作成。
+
+```{r}
+as.numeric(table(cut(tv$male.life.exp, breaks=seq(49.5,79.5,5))))
+```
+
+
+```{r}
+tmp <- tibble( "Male Life Expectancy"=
+    c("50--54","55--59","60--64","65--69","70--74","75--79"),
+    Frequency = as.numeric(table(cut(tv$male.life.exp, breaks=seq(49.5,79.5,5)))))
+tmp
+```
+
+上記のようなデータを作った場合には`geom_bar`を使用してヒストグラムを表示する。
+
+```{r}
+tmp %>% ggplot(aes(x = `Male Life Expectancy`, y = Frequency)) + 
+    geom_bar(stat = "identity")
+```
+
+
+## Section 3.3.4.3 Boxplot
+
+```{r, fig.height=2, fig.width=8}
+tv %>% ggplot(aes(x = male.life.exp)) + 
+    geom_boxplot()
+```
+
+
