@@ -1,0 +1,64 @@
+---
+title: "R Notebook 日本語パス"
+author: "石崎"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_float: yes
+    number_sections: yes
+    theme: flatly
+  html_notebook:
+    fig_width: 8
+    number_sections: yes
+    theme: flatly
+    toc: yes
+    toc_float: yes
+---
+
+# R Notebook
+
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+```
+
+
+パスに日本語を含むと、少なくともWindowsではR Notebookが正しくレンダリングされない。
+
+> Error creating notebook file name conversion problem -- name too long?
+
+と表示される。
+
+が、実はConsoleにて、
+
+```
+rmarkdown::render("ファイル名.Rmd")
+```
+
+と実行すればレンダリングされて、結果も正しく表示される。
+
+# R document
+
+セッティングをknit to HTMLにしてやると、自動レンダリングも問題なく実行できるようになる。
+
+# TEST
+
+```{r}
+cars %>% ggplot(aes(x = speed, y = dist)) +
+    geom_point() + labs( title = "速度と距離")
+```
+
+
+```{r}
+reg1 <- lm(dist ~ speed, data=cars)
+```
+
+```{r}
+summary(reg1)
+```
+
+R Notebookにしておいて、エラーは無視したままドキュメントを作成して行き、最後に`rmarkdown::render()`すればいいかなと思ったが、プロット結果がHTML内で正しく表示できないため、やはりR Documentにして自動でレンダリングするのが良い。
+
+
+
