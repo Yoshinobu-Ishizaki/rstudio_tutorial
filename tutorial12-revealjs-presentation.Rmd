@@ -1,0 +1,125 @@
+---
+title: "Revealjs slide demo"
+author: 石崎
+date: 2020/05/05
+output:
+    revealjs::revealjs_presentation:
+        theme: sky
+        highlight: pygments
+        transition: slide
+        self_contained: false
+        reveal_plugins: ["notes", "search"]
+        incremental: true
+        autoPlayMedia: true
+        previewLinks: true
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+```
+
+
+# Revealjs slide {incremental=false}
+
+R Markdown の revealjs プレゼンテーションスライド形式のデモ。
+
+- About R Markdown revealjs extension :
+
+    https://github.com/rstudio/revealjs
+
+- About Revealjs slide : 
+
+    http://lab.hakim.se/reveal-js/
+
+"space", "n","->"などでスライドが次に進む。
+
+# Keyboard shortcuts
+
+"p", "h", "<-"で戻る。
+
+"f"でフルスクリーン。
+
+"o"で全体レイアウト表示。
+
+"s"でプレンターモード起動。
+
+"b"でスクリーンを消す。
+
+# Slide with Bullets {incremental=true}
+
+YAMLに`incremental: true`としておくことで、リストが順番に表示されるようになる。
+
+- Bullet 1
+- Bullet 2
+- Bullet 3
+
+# Slide with R Code and Output
+
+```{r}
+summary(cars)
+```
+
+# Slide with Plot
+
+```{r, echo=FALSE}
+pressure %>% ggplot(aes(x = temperature, y = pressure)) + 
+    geom_point() + geom_line(color = "grey") + scale_y_log10() + labs(y = "pressure(log)")
+```
+
+## 2D slide
+
+This is a 2D slide. 
+
+---- 
+
+タイトルのないスライド。
+
+
+# Presenter note 
+
+プレゼンターモードのみに表示するノートを設定できる。
+
+<aside class="notes">
+
+プレゼンターモードのノートが可能
+
+</aside>
+
+# Themes, highlights
+
+Revealjsのテーマやハイライトの設定を使うことができるし、fragmentの動作を使うこともできる。
+
+<p class="fragment grow">grow</p>
+<p class="fragment shrink">shrink</p>
+<p class="fragment strike">strike</p>
+<p class="fragment fade-out">fade-out</p>
+
+----
+
+<p class="fragment fade-up">fade-up</p>
+<p class="fragment fade-down">fade-down</p>
+<p class="fragment fade-left">fade-left</p>
+<p class="fragment fade-right">fade-right</p>
+
+----
+
+<p class="fragment fade-in-then-out">fades in, then out when we move to the next step</p>
+
+----
+
+<p class="fragment fade-in-then-semi-out">fades in, then obfuscate when we move to the next step</p>
+
+----
+
+<p class="fragment highlight-current-blue">blue only once</p>
+<p class="fragment highlight-red">highlight-red</p>
+<p class="fragment highlight-green">highlight-green</p>
+<p class="fragment highlight-blue">highlight-blue</p>
+
+# Multimedia
+
+<video data-autoplay src="http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"></video>
+
+# End
+
+Have fun!
