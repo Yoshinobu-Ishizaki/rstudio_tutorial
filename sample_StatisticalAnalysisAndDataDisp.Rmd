@@ -79,6 +79,11 @@ abcd %>% mutate(col = col) %>% ggplot(aes(x = x, y = y, color = col)) +
 ヒストグラムを表示する前にデータを区分に分ける方法はそのままコピーしつつ、tibble形式でデータフレームを作成。
 
 ```{r}
+data(tv)
+```
+
+
+```{r}
 as.numeric(table(cut(tv$male.life.exp, breaks=seq(49.5,79.5,5))))
 ```
 
@@ -97,6 +102,12 @@ tmp %>% ggplot(aes(x = `Male Life Expectancy`, y = Frequency)) +
     geom_bar(stat = "identity")
 ```
 
+stem を使った文字によるヒストグラム。
+
+```{r}
+stem(tv$male.life.exp)
+```
+箱の範囲はQ1~Q3。Q2(=median)のところに線が引かれる。
 
 ## Section 3.3.4.3 Boxplot
 
@@ -106,6 +117,17 @@ tv %>% ggplot(aes(x = male.life.exp)) +
 ```
 
 ## Section 3.12 Exercise
+
+```{r}
+quantile(tv$male.life.exp)
+```
+
+## 3.3.5 Multivariate distribution
+
+```{r}
+shiny::runApp(system.file("shiny/bivariateNormalScatterplot",
+package="HH"))
+```
 
 ### Ex. 3.2
 

@@ -1,0 +1,48 @@
+---
+title: "Test for md_document conversion for gitlab"
+author: YI
+output: 
+    html_notebook:
+        toc: true
+        toc_float: true
+        number_sections: true
+        theme: flatly
+        
+    md_document:
+        toc: true
+        variant: gfm
+        pandoc_args: ["--lua-filter","./gitlab-md.lua"]
+---
+    
+# Abstract
+
+どのようにして数式を含むRMarkdown形式をgitlabで綺麗に表示出来るmarkdownに変換するか。
+
+# Paragraphs including math expressions
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r,warning=FALSE,message=FALSE}
+library(tidyverse)
+library(rmarkdown)
+```
+
+
+数式表現$\lambda$
+などが問題で、通常のmd_document変換ではちゃんとgitlabで表示できる形式に変換されない。
+
+$$
+y = x^2 \lambda
+$$
+
+```{r}
+cars
+```
+
+```{r}
+cars %>% ggplot(aes(x = speed, y = dist)) + 
+    geom_line() + ggtitle("車")
+```
+
