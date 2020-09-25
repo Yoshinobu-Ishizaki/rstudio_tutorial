@@ -1,0 +1,245 @@
+---
+title: "Bootstrap with R"
+author: "Yoshinobu Ishizaki"
+date: "`r Sys.Date()`"
+output: 
+    html_notebook: 
+      highlight: tango
+      number_sections: yes
+      theme: flatly
+      toc: yes
+      toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r,message=FALSE,warning=FALSE}
+library(tidyverse)
+library(boot)
+```
+
+# 概要
+
+ブートストラップ法の簡単な実践例。
+
+得られたデータから母集団を推定するに当たって点推定では無く、ブートストラップ法を使うことでより現実的な推定を行う。
+
+# 実例
+
+## 単純ブートストラップ
+
+得られたデータを繰返しを認めた上でリサンプリングすることでダミーデータを作り直すことができる。
+
+オリジナルのデータを作る。
+再現性のため、random.seedを固定する。
+
+```{r}
+set.seed(99)
+```
+
+```{r}
+x <- rnorm(30)
+```
+
+平均と標準偏差をデータから計算。これが母集団パラメータの単純な推定値となる。
+
+```{r}
+m0 <- mean(x)
+s0 <- sd(x)
+c(m0,s0)
+```
+
+母集団は平均0標準偏差1であり、サンプリングで得られたデータから計算した値が一致することはない。
+
+母集団のパラメータを推定するために、データからリサンプリングを行ってその平均と標準偏差を繰返し求めることをやるのがブートストラップ法。
+
+```{r}
+x1 <- sample(x, replace = TRUE, size = 30)
+c(mean(x1),sd(x1))
+```
+
+手続きを関数化して、
+
+```{r}
+f1 <- function(x){
+  x1 <- sample(x, replace = TRUE, size = 30)
+  c(mean(x1),sd(x1))
+}
+```
+
+繰り返す。
+
+```{r}
+param <- rep(list(x),1000) %>% map(f1) %>% 
+  unlist() %>% matrix(ncol = 2, byrow = TRUE)
+```
+
+得られた結果の平均。1つ目が平均値の推定平均。2つ目は標準偏差の推定平均。
+
+```{r}
+c(mean(param[,1]), mean(param[,2]))
+```
+
+単純な推定値と大きくは変わらない（当然といえば当然）。
+
+プロットしてみる。
+
+```{r}
+pdfm <- data.frame(param)
+names(pdfm) <- c("mean","sd")
+```
+
+```{r}
+pdfm %>% ggplot(aes(x = mean)) + geom_histogram(bins = 30) + ggtitle("mean estimate") +
+  geom_vline(xintercept = 0, color = "red")
+```
+
+```{r}
+pdfm %>% ggplot(aes(x = sd)) + geom_histogram(bins = 30) + ggtitle("sd estimate") +
+    geom_vline(xintercept = 1, color = "red")
+```
+
+サンプリングデータにつられて、本来の母集団とは異なるパラメータが得られているが、そこそこ近いところを中心に分布するものが得られる。
+
+これらのパラメータを元に標本データを再推定してみる。
+
+```{r}
+xe <- map2_dbl(pdfm$mean, pdfm$sd,function(x,y){rnorm(1,x,y)})
+```
+
+```{r}
+tibble(x = xe) %>% ggplot(aes(x=x)) + geom_histogram(aes(y= ..density..), bins = 30) + 
+  stat_function(fun = dnorm, n = 101, args = list(mean = 0, sd = 1)) + 
+  xlim(-5,5)
+```
+
+比較的本来の母集団を再現してそうなデータが得られた。
+
+```{r}
+c(mean(xe), sd(xe))
+```
+
+元のデータを見比べてみる。
+
+```{r}
+tibble(x = x) %>% ggplot(aes(x=x)) + geom_histogram(aes(y= ..density..), bins = 30) + 
+  stat_function(fun = dnorm, n = 101, args = list(mean = 0, sd = 1)) + 
+  xlim(-5,5)
+```
+
+このデータからよく、それっぽい推定を出来たものだ。
+
+## パラメトリックブートストラップ
+
+母集団パラメータ（平均と標準偏差）をbootライブラリを利用して求め、そこからデータを再サンプリングする方法。
+
+平均と標準偏差をランダムサンプリングから求める関数を定義しておいてbootパッケージでの推定を行う。
+
+```{r}
+est_mean <- function(x,i){
+  mean(x[i])
+}
+```
+
+```{r}
+me <- boot(x, statistic = est_mean, R=1000, stype = "i")
+```
+
+```{r}
+est_sd <- function(x,i){
+  sd(x[i])
+}
+```
+
+```{r}
+se <- boot(x, statistic = est_sd, R=1000, stype = "i")
+```
+
+```{r}
+pdfm2<- tibble(mean = me$t, sd = se$t)
+```
+
+```{r}
+pdfm2 %>% ggplot(aes(x = mean)) + geom_histogram(bins = 30) + ggtitle("mean estimate") +
+  geom_vline(xintercept = 0, color = "red")
+```
+
+```{r}
+pdfm2 %>% ggplot(aes(x = sd)) + geom_histogram(bins = 30) + ggtitle("sd estimate") +
+    geom_vline(xintercept = 1, color = "red")
+```
+
+単純ブートストラップよりもさらにもっともらしい分布になったのではないか。
+
+```{r}
+pdfm2 %>% summarise_all(mean)
+```
+
+データサンプリングを推定パラメータを元にして行う。
+
+```{r}
+xe2 <- map2_dbl(pdfm2$mean, pdfm2$sd,function(x,y){rnorm(1,x,y)})
+```
+
+```{r}
+tibble(x = xe2) %>% ggplot(aes(x=x)) + geom_histogram(aes(y= ..density..), bins = 30) + 
+  stat_function(fun = dnorm, n = 101, args = list(mean = 0, sd = 1)) + 
+  xlim(-5,5)
+```
+
+## 比較
+
+2つの方法を比較してみる。
+
+```{r}
+xdfm1 <- tibble(x = xe, lb = "simple")
+xdfm2 <- tibble(x = xe2, lb = "boot")
+
+xdfm <- rbind(xdfm1, xdfm2)
+```
+
+```{r}
+xdfm %>% ggplot(aes( x = x, fill = lb )) + 
+  geom_histogram(aes(y = ..density..), alpha = 0.3, bins = 30, position = "identity") +
+  stat_function(fun = dnorm, n = 101, args = list(mean = 0, sd = 1)) + 
+  xlim(-5,5)
+```
+
+両者ともそれほど大きな違いは無い。
+
+```{r}
+xdfm %>% group_by(lb) %>% summarise(mean(x),sd(x))
+```
+
+一応、本来の母集団に近いのはbootライブラリを使った方になっているが、単純なブートストラップ法でもそれなりの値になっている。
+
+単純ブートストラップ法の場合について、[-3,3]外に落ちる個数をカウントしてみる。
+
+
+```{r}
+rt1 <- (xdfm1 %>% filter(x < -3 | x > 3) %>% count())$n / length(xdfm1$x)
+rt1
+```
+
+本来これは
+
+```{r}
+pnorm(-3)*2
+```
+
+になるはずのものだが、実データを元に計算されているので異なる。
+
+元データから得られる平均と標準偏差で推定すると、
+
+```{r}
+pnorm(-3, mean(x), sd(x)) + 1 - pnorm(3,mean(x),sd(x))
+```
+
+なので、ブートストラップ方式よりも点推定の方が母集団に近いのだが、mini-maxな考え方（予想される最悪の状況を最小化する）からするとブートストラップ法の方が妥当といえる。
+
+
+
+
+
