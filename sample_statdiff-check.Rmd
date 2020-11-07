@@ -1,0 +1,102 @@
+---
+title: "Sample: estimating statistical difference"
+author: Yoshinobu Ishizaki
+date: 2020-06-01
+output: 
+  html_notebook: 
+    theme: flatly
+    fig_width: 8
+    fig_height: 4.5
+    number_sections: yes
+    toc: yes
+    toc_float: yes
+---
+
+# Abstract
+
+2群の平均値の差や標準偏差の違いが確かなものかどうかを、仮説検定だけでなくシミュレーションを使って確認する作業のサンプル。
+
+Cpk計算との関連も合わせて考察。
+
+# Samples
+
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+```
+
+## 2群の標準偏差の差異
+
+平均値10, 標準偏差0.025で正規分布する集団を想定する。
+これは公差$10 \pm 0.1$の元でCpk = 1.33を満たす。
+
+```{r}
+0.2/6/0.025
+```
+
+これに対し、標準偏差が0.03だとCpkは
+
+```{r}
+0.2/6/0.03
+```
+
+となる。
+
+今、確認としてサンプル数30で実測したとする。サンプリングをすると母集団とは異なる平均値、標準偏差を持つサンプルが得られる。
+
+```{r}
+a0 <- rnorm(30, mean = 10, sd = 0.025)
+mean(a0)
+sd(a0)
+```
+
+
+別の集団として条件の異なるサンプルを得たとする。今、これは実は母集団B(平均10, 標準偏差0.03)からのサンプルだということにする。
+
+```{r}
+b0 <- rnorm(30, mean = 10, sd = 0.03)
+mean(b0)
+sd(b0)
+```
+
+A,Bの標準偏差を比較して常にA < Bと言えるだろうか？
+
+```{r}
+sd(a0) < sd(b0)
+```
+
+標準偏差の検定にはχ2乗検定を使用する。
+
+```{r}
+chisq.test(a0,b0)
+```
+
+p値の大きさから$a0 \neq b0$とは言えない。
+
+同じトライを何回も繰り返したらどうなるだろうか？
+ssize個のサンプルをA,B群から取り出し、その標準偏差を比較してsd(A) < sd(B)を記録する関数を作成して、その平均値を計算する。
+
+```{r}
+compare_ab <- function(n = 100, ssize = 30 ){
+    x <- rep(TRUE,n)
+    for(i in 1:n){
+        a <- rnorm(ssize, 10, 0.025)
+        b <- rnorm(ssize, 10, 0.03)
+        x[i] = sd(a) < sd(b)
+    }
+    x
+}
+```
+
+```{r}
+xx <- compare_ab()
+```
+
+```{r}
+mean(xx)
+```
+
+RではTRUEを1として計算するため、この平均値は実際にsd(A) < sd(B)が成立した比率となる。
+
+30個のサンプリングだと約11%の場合にsd(A) >= sd(B)となった事になる。
+
+
