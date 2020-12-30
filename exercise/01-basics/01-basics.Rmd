@@ -1,0 +1,132 @@
+---
+title: "Rの基礎"
+output: learnr::tutorial
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+## 変数定義
+
+Rで変数割当をするときは、`<-` 記号または `=` を使う。
+RStudio環境ならば`Alt+-`で`<-`記号が入力される。
+
+```{r assign1, exercise=TRUE}
+x <- 1
+x
+```
+
+`->`を使うと計算した結果を右に書いた変数名に割り当てることも出来る。
+
+```{r assign2, exercise=TRUE}
+1+2 -> x
+x
+```
+
+変数名は大抵のプログラミング言語同様、英数字や`.`, `_`といった記号を使うことが出来る。
+数字で始めることはできないし、`,`や`$`には特別な役割が与えられているため使わない方が良い。
+日本語名も伝えるが、文字コードによっては想定しない動作になる可能性があるので、使用しないほうが良い。
+
+```{r assign3, exercise=TRUE}
+x_1 <- 1
+x_1 + 3
+```
+
+## ベクトル
+
+Rの要素は単独の数値であっても内部的には要素数1ベクトルになっている。
+
+```{r vec1, exercise=TRUE}
+x <- 1
+length(x)
+typeof(x)
+```
+
+要素数が2以上の場合は`c()`でくくって定義する。
+
+```{r vec2, exercise=TRUE}
+x <- c(1,2,3)
+length(x)
+typeof(x)
+```
+
+連続する要素を生成するのに、`1:10`や`seq(1,10,2)`といった表現を使うことが出来る。
+
+```{r vec3, exercise=TRUE}
+x <- seq(1,10,by = 2)
+x
+```
+
+次のコードを補足して、長さが10の配列を作成してみよう。
+
+```{r vec4, exercise = TRUE}
+x <- seq(1,by = 3)
+x
+```
+
+```{r vec4-solution}
+x <- seq(1,by = 3,length.out = 10)
+x
+```
+
+ベクトルの合成は、`c()`でつなげるだけで出来る。
+
+```{r vec5, exercise = TRUE}
+x <- 1:10
+y <- seq(-10,-1)
+# x,y をつなげた配列を作成する。
+
+```
+
+```{r vec5-solution}
+x <- 1:10
+y <- seq(-10,-1)
+# x,y をつなげた配列を作成する。
+c(x,y)
+```
+
+2次元の配列にしたい場合は`rbind`,`cbind`を使用する。
+
+```{r vec6, exercise = TRUE}
+x <- 1:10
+y <- seq(-10,-1)
+# 2次元配列を作る
+
+```
+
+```{r vec6-solution, exercise = TRUE}
+x <- 1:10
+y <- seq(-10,-1)
+# 2次元配列を作る
+cbind(x,y)
+```
+
+`dim`で配列サイズを得ることが出来る。
+
+```{r vec7, exercise = TRUE}
+x <- 1:10
+y <- seq(-10,-1)
+dim(cbind(x,y))
+```
+
+配列要素は番号を`[]`で囲って指定することで、取り出すことが出来る。
+
+```{r vec8, exercise = TRUE}
+x <- 1:10
+x[3]
+```
+
+pythonと違って`[-1]`とすると1番目の要素を除外した配列が返される。
+
+```{r vec9, exercise=TRUE}
+x <- 1:10
+x[-1]
+```
+
+## リスト
+
+
