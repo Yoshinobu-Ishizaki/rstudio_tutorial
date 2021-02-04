@@ -82,7 +82,7 @@ knitr::opts_chunk$set(dev="cairo_pdf", dev.args=list(family="Japan1"))
 
 ```{r, warning=FALSE, message=FALSE}
 library(tidyverse)
-library(openxlsx)
+# library(readxl)
 ```
 
 ## Data (データ)
@@ -107,5 +107,16 @@ cars2 %>% head
 ```{r}
 cars2 %>% ggplot(aes(x=speed2, y = dist2)) +
     geom_point() + labs(title = "速度と停止距離", x= "km/h", y = "m") + stat_smooth(method = "lm", se = FALSE)
+```
+
+# 実行環境
+
+
+```{r}
+version
+```
+
+```{r}
+packageVersion("tinytex")
 ```
 
