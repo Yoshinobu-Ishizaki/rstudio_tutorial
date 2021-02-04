@@ -1,0 +1,53 @@
+---
+title: "ggplot: geom_jitter"
+author: "Yoshinobu Ishizaki"
+date: "`r Sys.Date()`"
+output: 
+    html_notebook:
+        theme: spacelab
+        # toc: true
+        # toc_float: true
+        # number_sections: true
+---
+
+# Jitterプロットの性質
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+x <- c(rep(1.1,5),rep(1.2,4))
+y <- c(rep("1",5),rep("2",4))
+
+dfm <- tibble(x = x, lb = y)
+```
+
+オプションを指定しないと、X,Y両方向に適度にバラけてしまう。
+
+```{r}
+dfm %>% ggplot(aes(x = lb, y = x, color = lb)) +
+    geom_jitter() + ylim(0.5,1.5)
+```
+
+`height = 0`と指定することで、Y方向の散らしを抑制できる。
+
+```{r}
+dfm %>% ggplot(aes(x = lb, y = x, color = lb)) +
+    geom_jitter(height = 0) + ylim(0.5,1.5)
+```
+
+`width = 0.2`という指定だけではY方向の散らばりは抑制できない。
+
+```{r}
+dfm %>% ggplot(aes(x = lb, y = x, color = lb)) +
+    geom_jitter(width = 0.2) + ylim(0.5,1.5)
+```
+
+X,Y両方をコントロールしたいなら、width, height 両方を指定しないとダメ。
+
+```{r}
+dfm %>% ggplot(aes(x = lb, y = x, color = lb)) +
+    geom_jitter(width = 0.2, height = 0) + ylim(0.5,1.5)
+```
+
