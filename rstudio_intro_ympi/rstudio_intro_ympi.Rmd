@@ -1,7 +1,7 @@
 ---
 title: "RStudio Intro for YMPI"
 author: "Yoshinobu Ishizaki"
-date: "2021-03-06"
+date: "2021-03-10"
 output:
   revealjs::revealjs_presentation:
     theme: beige
@@ -59,7 +59,7 @@ Indent is important. Do not change spaces at each line's beginning.
 
 # Keep business report structure
 
-Even in RStudio, you should be better to write your report in a business manner.
+Even in RStudio, you should be better to write your report in typical business manner.
 
 - **A**bstract
 - **B**ackground
@@ -92,6 +92,7 @@ Next thing you should do is plotting (Visualization).
 Image tells you a lot more than boring numbers.
 
 ---
+
 Basic code.
 Use jitter to avoid overlapping points.
 
@@ -103,6 +104,20 @@ dfm %>% # data will be ...
   geom_hline(yintercept = c(5,7), color = "red") + # draw horizontal tolerance lines
   labs(title = "Iris data") # add title
 ```
+
+---
+
+Bad example. Points collision.
+
+```{r}
+dfm %>% # data will be ...
+  ggplot(aes(x = Species, y = Sepal_Length, color = Species)) + # plotted with x,y,color
+  geom_point() + # geom_point makes points overlapping
+  ylim(0,10) + # specify y axis range to avoid scaling misconception  
+  geom_hline(yintercept = c(5,7), color = "red") + # draw horizontal tolerance lines
+  labs(title = "Iris data") # add title
+```
+
 
 ## Summarise
 
@@ -118,13 +133,15 @@ dfm %>% # data to be ...
 When using RMarkdown with Gitlab, it is better to convert your RMarkdown code into normal Markdown.
 You can make your report viewable on Gitlab projects' web site.
 
-Add YAML code below and choose `knit to md_document`.
+Add YAML code below 
 
 ```
 md_document:
     toc: true
     variant: gfm
 ```
+
+and choose `knit to md_document`.
 
 If your RMarkdown code includes math expression, refer to Gitlab lua filter  [here](https://gitlab.scm.service.infosys.yamaha.com/bo_pe/about_bo_pe/-/blob/master/doc/gfm.md#7-rmarkdown-math-1).
 
@@ -140,6 +157,9 @@ If your RMarkdown code includes math expression, refer to Gitlab lua filter  [he
   For column names, it is better to use '_' exclusively because '-' can be confused with mathematical expression.
   
 # End note
+
+Any questions are always welcome!
+Save your time by re-use of code and asking experienced person (like me :-p ).
 
 This file's source can be found at https://github.com/Yoshinobu-Ishizaki/rstudio_tutorial/tree/master/rstudio_intro_ympi/
 
