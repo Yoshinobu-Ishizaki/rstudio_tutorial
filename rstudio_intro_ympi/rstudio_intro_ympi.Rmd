@@ -1,12 +1,10 @@
 ---
 title: "RStudio Intro for YMPI"
 author: "Yoshinobu Ishizaki"
-date: "2021-03-06 (updated: `r Sys.Date()`)"
+date: "2021-03-06"
 output:
   revealjs::revealjs_presentation:
     theme: beige
-    highlight: pygments
-
 ---
 
 
@@ -93,22 +91,27 @@ dfm <- read_excel("iris.xlsx",sheet = "Sheet1")
 Next thing you should do is plotting (Visualization).
 Image tells you a lot more than boring numbers.
 
-## 
-Basic code is here.Use jitter to avoid overlapping points.
+---
+Basic code.
+Use jitter to avoid overlapping points.
 
 ```{r}
-dfm %>% ggplot(aes(x = Species, y = Sepal_Length, color = Species)) +
-  geom_jitter(width = 0.2, height = 0) + 
-  ylim(0,10) + 
-  geom_hline(yintercept = c(5,7), color = "red") + 
-  labs(title = "Iris data")
+dfm %>% # data will be ...
+  ggplot(aes(x = Species, y = Sepal_Length, color = Species)) + # plotted with x,y,color
+  geom_jitter(width = 0.2, height = 0) + # jittering points only to horizontally
+  ylim(0,10) + # specify y axis range to avoid scaling misconception  
+  geom_hline(yintercept = c(5,7), color = "red") + # draw horizontal tolerance lines
+  labs(title = "Iris data") # add title
 ```
+
 ## Summarise
 
-After investigating data by plotting, you need summary of your data numerics.
+After data investigation by plotting, you need summary of your data numerics.
 
 ```{r}
-dfm %>% group_by(Species) %>% summarise(mean(Sepal_Length))
+dfm %>% # data to be ...
+  group_by(Species) %>% # grouped 
+  summarise(sepal_length_mean = mean(Sepal_Length)) # and summarised
 ```
 # Gitlab markdown output (Optional)
 
@@ -123,10 +126,21 @@ md_document:
     variant: gfm
 ```
 
-If your RMarkdown code includes math expression, refer to Gitlab lua filter docs [here](https://gitlab.scm.service.infosys.yamaha.com/bo_pe/about_bo_pe/-/blob/master/doc/gfm.md#7-rmarkdown-math-1).
+If your RMarkdown code includes math expression, refer to Gitlab lua filter  [here](https://gitlab.scm.service.infosys.yamaha.com/bo_pe/about_bo_pe/-/blob/master/doc/gfm.md#7-rmarkdown-math-1).
 
+# References
 
+- [R4DS](https://r4ds.had.co.nz/) (R for Data Science)
+
+  Online version of famous book for data science by Prof. Hadley Wickham (writer of `tidyverse`).
+  
+- https://speakerdeck.com/jennybc/how-to-name-files
+
+  Better ways to name 'files'. This method can be used to name 'columns'.
+  For column names, it is better to use '_' exclusively because '-' can be confused with mathematical expression.
+  
 # End note
 
 This file's source can be found at https://github.com/Yoshinobu-Ishizaki/rstudio_tutorial/tree/master/rstudio_intro_ympi/
 
+Happy RStudio - ing!
