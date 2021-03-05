@@ -1,0 +1,66 @@
+---
+title: "ioslides test"
+author: "石崎 由宣"
+date: "2020/5/5"
+output: 
+    ioslides_presentation:
+        widescreen: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r, include=FALSE}
+library(tidyverse)
+```
+
+## ioslides
+
+ioslides 形式なら著者名などに日本語が入っていても問題ない。
+
+仕様については、
+
+https://bookdown.org/yihui/rmarkdown/ioslides-presentation.html
+
+を参照すると良い。
+
+## Slide with Bullets
+
+- Bullet 1
+- Bullet 2
+- Bullet 3
+
+## Slide with R Output
+
+```{r cars, echo = TRUE}
+summary(cars)
+```
+
+## Slide with Plot
+
+```{r pressure, echo=FALSE}
+# plot(pressure)
+pressure %>% ggplot(aes(x = temperature, y = pressure)) + 
+    geom_point() + geom_line(color = "grey") + scale_y_log10() + labs(y = "pressure(log)")
+```
+
+
+---
+
+Slide with no title.
+
+Text 1
+
+<div class="notes">
+プレゼンターのノートを簡単に追加できる。
+
+This is my *note*.
+
+- It can contain markdown
+- like this list
+</div>
+
+## next subsection?\
+
+text 2
