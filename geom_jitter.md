@@ -1,26 +1,18 @@
----
-title: "ggplot: geom_jitter"
-author: "Yoshinobu Ishizaki"
-date: "`r Sys.Date()`"
-output: 
-    html_notebook:
-        theme: spacelab
-        # toc: true
-        # toc_float: true
-        # number_sections: true
-    github_document:
-        toc: true
-        number_sections: true
-        pandoc_args: ["--lua-filter","./gitlab-md.lua"]
----
+ggplot: geom\_jitter
+================
+Yoshinobu Ishizaki
+2021-04-04
 
-# Jitterプロットの性質
+-   [1 Jitterプロットの性質](#jitterプロットの性質)
+-   [2 Math test](#math-test)
 
-```{r}
+# 1 Jitterプロットの性質
+
+``` r
 library(tidyverse)
 ```
 
-```{r}
+``` r
 x <- c(rep(1.1,5),rep(1.2,4))
 y <- c(rep("1",5),rep("2",4))
 
@@ -29,37 +21,44 @@ dfm <- tibble(x = x, lb = y)
 
 オプションを指定しないと、X,Y両方向に適度にバラけてしまう。
 
-```{r}
+``` r
 dfm %>% ggplot(aes(x = lb, y = x, color = lb)) +
     geom_jitter() + ylim(0.5,1.5)
 ```
 
+![](geom_jitter_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
 `height = 0`と指定することで、Y方向の散らしを抑制できる。
 
-```{r}
+``` r
 dfm %>% ggplot(aes(x = lb, y = x, color = lb)) +
     geom_jitter(height = 0) + ylim(0.5,1.5)
 ```
 
+![](geom_jitter_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
 `width = 0.2`という指定だけではY方向の散らばりは抑制できない。
 
-```{r}
+``` r
 dfm %>% ggplot(aes(x = lb, y = x, color = lb)) +
     geom_jitter(width = 0.2) + ylim(0.5,1.5)
 ```
 
+![](geom_jitter_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
 X,Y両方をコントロールしたいなら、width, height 両方を指定しないとダメ。
 
-```{r}
+``` r
 dfm %>% ggplot(aes(x = lb, y = x, color = lb)) +
     geom_jitter(width = 0.2, height = 0) + ylim(0.5,1.5)
 ```
 
-# Math test
+![](geom_jitter_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+# 2 Math test
 
 Basel equation
 
-$$
+```math
 \sum_{n = 1}^{\infty} \frac{1}{n^2} = \frac{\pi^2}{6}
-$$
-
+```
