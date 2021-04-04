@@ -1,0 +1,44 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+library(clock)
+```
+```{r}
+as.integer(date_build(2019,4,3))
+```
+```{r}
+library(lubridate)
+dd <- ymd("20210403")
+set.seed(as.integer(dd))
+```
+
+```{r}
+dlst <- seq(ymd("20210401"),ymd("20210430"), by = 1)
+```
+
+```{r}
+date_group(dlst, "month")
+```
+
+```{r}
+as.Date("2024/03/24")
+```
+
+```{r}
+library(reticulate)
+```
+
+
+python
+
+```{python}
+1+3
+```
+

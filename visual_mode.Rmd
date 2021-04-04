@@ -81,3 +81,7 @@ $$
 別行立ての数式も非常に見やすい。
 
 ところでこのOld Faithfullのデータって面白い形しているな。明らかに2つのモードを持っている。
+
+hogehoge[^2]
+
+[^2]: test hogehoge footnotes
