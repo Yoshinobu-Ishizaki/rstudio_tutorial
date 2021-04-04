@@ -11,7 +11,7 @@ output:
     github_document:
         toc: true
         number_sections: true
-        pandoc_args: ["--lua-filter","./gitlab-md.lua"]
+        # pandoc_args: ["--lua-filter","./gitlab-md.lua"]
 ---
 
 # Jitterプロットの性質

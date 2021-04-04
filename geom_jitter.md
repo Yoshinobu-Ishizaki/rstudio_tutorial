@@ -59,6 +59,6 @@ dfm %>% ggplot(aes(x = lb, y = x, color = lb)) +
 
 Basel equation
 
-```math
-\sum_{n = 1}^{\infty} \frac{1}{n^2} = \frac{\pi^2}{6}
-```
+$$
+\\sum\_{n = 1}^{\\infty} \\frac{1}{n^2} = \\frac{\\pi^2}{6}
+$$
