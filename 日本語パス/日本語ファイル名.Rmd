@@ -3,18 +3,18 @@ title: "R Notebook 日本語パス"
 author: "石崎"
 date: "`r Sys.Date()`"
 output:
-  html_document:
-    df_print: paged
-    toc: yes
-    toc_float: yes
-    number_sections: yes
-    theme: flatly
   html_notebook:
     fig_width: 8
     number_sections: yes
     theme: flatly
     toc: yes
     toc_float: yes
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_float: yes
+    number_sections: yes
+    theme: flatly
 ---
 
 # R Notebook
