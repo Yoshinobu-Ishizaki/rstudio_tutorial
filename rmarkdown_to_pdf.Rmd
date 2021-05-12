@@ -1,8 +1,10 @@
 ---
 title: "rmarkdown_to_pdf"
 author: "Yoshinobu Ishizaki"
-date: "2020/4/26"
+date: "2020/4/26 revised 2021-05-12"
 output:
+  github_document:
+    toc: true
   pdf_document:
     latex_engine: xelatex
     # number_sections: yes
@@ -10,11 +12,11 @@ output:
   html_document:
     df_print: paged
     toc: yes
-geometry: no
+# geometry: no
 documentclass: bxjsarticle
 classoption: xelatex, ja=standard
-mainfont: Noto Serif CJK JP
-monofont: Noto Sans Mono CJK JP
+# mainfont: Noto Serif CJK JP # linux
+# monofont: Noto Sans Mono CJK JP # linux
 ---
 
 ```{r setup, include=FALSE}
@@ -30,7 +32,8 @@ if (knitr::opts_knit$get("rmarkdown.pandoc.to") %in% c("beamer", "latex")) {
   
   ## 1. cairo_pdf を使う方法
   # * family には OS にインストールされているフォント名を指定する。
-  knitr::opts_chunk$set(dev="cairo_pdf", dev.args=list(family="Noto Sans"))
+  # knitr::opts_chunk$set(dev="cairo_pdf", dev.args=list(family="Noto Sans"))
+  knitr::opts_chunk$set(dev="cairo_pdf", dev.args=list(family="Yu Gothic")) # for windows
 }
 ```
 
@@ -59,6 +62,23 @@ tinytex:::is_tinytex()
 
 がTRUEになればOK。
 
+## Version 4.0
+
+https://stackoverflow.com/questions/66305776/got-knit-issue-with-r
+を参考にpdfcropとghostscriptをインストールしてパスを通す。
+
+YAMLに、`geometry: no`の行があると途中でクラッシュするので、その行は消す。
+
+プロットの日本語文字については、Systemにインストールされているフォント名を
+
+```
+  knitr::opts_chunk$set(dev="cairo_pdf", dev.args=list(family="Yu Gothic")) # for windows
+```
+の部分で指定すると良い。
+
+フォント名は、`systemfonts::systemfonts()`で探すことができる。
+
+## Version 3.6
 
 knit to PDFで
 `! LaTeX Error: Option clash for package geometry.`
@@ -78,6 +98,14 @@ $endif$
 とコメントアウトすると良い。
 
 # 参考
+
+## Ver 4.0
+
+- https://stackoverflow.com/questions/66305776/got-knit-issue-with-r
+- https://www.karada-good.net/analyticsr/r-633
+- https://ill-identified.hatenablog.com/entry/2020/10/03/200618
+
+## Ver 3.6
 
 - http://nonki1974.hateblo.jp/entry/2018/12/27/011003
 - https://qiita.com/nozma/items/1c6b000b674225fd40d7
