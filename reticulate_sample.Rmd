@@ -1,0 +1,47 @@
+---
+title: "Using python"
+output: html_notebook
+---
+
+# 前提
+
+Anacondaでpythonをインストール済み。
+
+`.Renviron`にて`RETICULATE_PYTHON`を指定済（`usethis::edit_r_environ`を使うと便利）。
+
+
+# RMarkdown サンプル
+
+```{r setup, warning=FALSE, message=FALSE}
+library(reticulate)
+library(tidyverse)
+```
+
+```{r}
+py_config()
+```
+
+ちゃんとロードされ、使える状態になっている。
+
+```{python}
+sys.version()
+```
+
+numpyを使ってベクトルデータを生成する。
+
+```{python}
+import numpy as np
+
+x = np.linspace(0, 2*np.pi, 50)
+y = np.sin(x)
+
+```
+
+Rがらアクセスするには、`py$`を使う。
+
+```{r}
+ggplot() + geom_line(aes(x = py$x, y = py$y)) +
+  labs(x = "x", y = "sin(x)", title = "Plot of Sin(x)")
+
+```
+
